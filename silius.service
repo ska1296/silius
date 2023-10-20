@@ -1,0 +1,34 @@
+[Unit]
+Description=Silius bundler
+After=network.target syslog.target
+Documentation=https://github.com/Vid201/silius
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=silius   # Replace with the appropriate user. Running as root can be a security concern.
+Group=silius  # Replace with the appropriate group. Running as root can be a security concern.
+LimitNOFILE=1024
+
+Environment="WORKING_DIR=/path/to/silius/directory"    # Replace with the appropriate path.
+
+
+Restart=always
+RestartSec=5s
+
+WorkingDirectory=${WORKING_DIR}
+ExecStart="${WORKING_DIR}/target/release/silius" bundler --eth-client-address <path_of_a_supported_eth_node> --mnemonic-file ${HOME}/.silius/<name_of_mnemonic_file> --beneficiary <wallet_address_of_beneficiary> --entry-points 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789 --http --ws
+
+ExecStartPre=/usr/bin/mkdir -p /var/log/${SVCNAME}
+ExecStartPre=/usr/bin/chown syslog:adm /var/log/${SVCNAME}
+ExecStartPre=/usr/bin/chmod 755 /var/log/${SVCNAME}
+ExecStartPre=/usr/bin/touch /var/log/${SVCNAME}/${SVCNAME}.log
+ExecStartPre=/usr/bin/chown syslog:adm /var/log/${SVCNAME}/${SVCNAME}.log
+ExecStartPre=/usr/bin/chmod 755 /var/log/${SVCNAME}/${SVCNAME}.log
+
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=bundler
+
+[Install]
+WantedBy=multi-user.target
