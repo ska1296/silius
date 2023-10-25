@@ -72,6 +72,22 @@ cargo run --release -- rpc --http --ws
 docker run --net=host -v ./bundler-spec-tests/keys/0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266:/data/silius/0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 -v ./db:/data/silius/db ghcr.io/vid201/silius:latest bundler --eth-client-address http://127.0.0.1:8545 --datadir data/silius --mnemonic-file data/silius/0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --beneficiary 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --entry-points 0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789 --http --http.addr 0.0.0.0 --http.port 3000 --http.api eth,debug,web3 --ws --ws.addr 0.0.0.0 --ws.port 3001 --ws.api eth,debug,web3 --eth-client-proxy-address http://127.0.0.1:8545
 ```
 
+### Deploying with `systemd`
+
+For users looking to deploy Silius on their servers using `systemd`, we provide a systemd service file to make the deployment process easier. This is tested for Ubuntu machines and runs the release build of silius.
+
+1. Copy the `silius.service` to `/lib/systemd/system/`.
+2. Make sure to adjust the file paths and other configuration details in the service file to match your setup. There are two variables:
+   1. `WORKING_DIR`: Point this to the directory where you have the `silius` project.
+   2. `HOME_DIR`: Point this to the `HOME` directory (used for locating mnemonic file).
+3. Start the service using `sudo systemctl start silius`.
+4. Enable it to start on boot using `sudo systemctl enable silius`.
+5. To view the status of the service, you can run ```sudo systemctl status silius```
+6. To view silius logs, you can run ```tail -f /var/log/silius/silius.log -f```
+
+For more details on systemd and how it works, consult the [official systemd documentation](https://www.freedesktop.org/wiki/Software/systemd/).
+
+
 ## Supported networks
 
 Bundler was tested on the following networks:
