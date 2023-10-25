@@ -1,34 +1,35 @@
 [Unit]
-Description=Silius bundler
-After=network.target syslog.target
-Documentation=https://github.com/Vid201/silius
-StartLimitBurst=5
+Description=Ilius Bundler
+After=syslog.target
 
 [Service]
 Type=simple
-User=silius   # Replace with the appropriate user. Running as root can be a security concern.
-Group=silius  # Replace with the appropriate group. Running as root can be a security concern.
+User=root
+Group=root
 LimitNOFILE=1024
 
-Environment="WORKING_DIR=/path/to/silius/directory"    # Replace with the appropriate path.
-
+#point this to the directory where the project is located
+Environment=WORKING_DIR=/home/shubhketanagarwal
+#point this to the HOME directory
+Environment=HOME_DIR=/home/shubhketanagarwal
+Environment=SVCNAME=silius-service
 
 Restart=always
-RestartSec=5s
 
-WorkingDirectory=${WORKING_DIR}
-ExecStart="${WORKING_DIR}/target/release/silius" bundler --eth-client-address <path_of_a_supported_eth_node> --mnemonic-file ${HOME}/.silius/<name_of_mnemonic_file> --beneficiary <wallet_address_of_beneficiary> --entry-points 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789 --http --ws
+ExecStart=/bin/bash -c '${WORKING_DIR}/silius/target/release/silius bundler --eth-client-address https://<address_of_the_eth_node> --mnemonic-file ${HOME_DIR}/.silius/0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --beneficiary 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --entry-points 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789 --http --ws'
 
-ExecStartPre=/usr/bin/mkdir -p /var/log/${SVCNAME}
-ExecStartPre=/usr/bin/chown syslog:adm /var/log/${SVCNAME}
-ExecStartPre=/usr/bin/chmod 755 /var/log/${SVCNAME}
+# make sure log directory exists and owned by syslog
+PermissionsStartOnly=true
+ExecStartPre=/bin/mkdir -p /var/log/${SVCNAME}
+ExecStartPre=/bin/chown syslog:adm /var/log/${SVCNAME}
+ExecStartPre=/bin/chmod 755 /var/log/${SVCNAME}
 ExecStartPre=/usr/bin/touch /var/log/${SVCNAME}/${SVCNAME}.log
-ExecStartPre=/usr/bin/chown syslog:adm /var/log/${SVCNAME}/${SVCNAME}.log
-ExecStartPre=/usr/bin/chmod 755 /var/log/${SVCNAME}/${SVCNAME}.log
-
-StandardOutput=syslog
-StandardError=syslog
-SyslogIdentifier=bundler
+ExecStartPre=/bin/chown syslog:adm /var/log/${SVCNAME}/${SVCNAME}.log
+ExecStartPre=/bin/chmod 755 /var/log/${SVCNAME}/${SVCNAME}.log
+StandardOutput=append:/var/log/silius/silius.log
+StandardError=append:/var/log/silius/silius.log
+# cannot do var expansion
+SyslogIdentifier=silius
 
 [Install]
 WantedBy=multi-user.target
